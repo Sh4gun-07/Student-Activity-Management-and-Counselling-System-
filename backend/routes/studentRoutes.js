@@ -113,7 +113,7 @@ router.post("/", studentFileFields, async (req, res) => {
         ? "✅ Student added successfully"
         : `✅ Student added successfully, but ⚠️ no mentor found for course: ${studentCourse}. Please assign one manually.`,
       student: newStudent,
-      generatedPassword: randomPassword,
+      generatedPassword: identity.plainPassword,
       assignedMentor: assignedMentor
         ? `${assignedMentor.firstName} ${assignedMentor.lastName}`
         : null,

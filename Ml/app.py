@@ -7,6 +7,7 @@ from typing import List, Dict, Any, Optional
 import joblib
 import pandas as pd
 import os
+from pathlib import Path
 import lime
 import lime.lime_tabular
 
@@ -28,10 +29,20 @@ app.add_middleware(
  
 
 # -------------------- Load Model Pipeline --------------------
-PIPELINE_PATH = os.getenv("PIPELINE_PATH", "models\\ml_model_best.pkl")
+configured_pipeline_path = os.getenv("PIPELINE_PATH")
+PIPELINE_PATH = (
+    Path(configured_pipeline_path)
+    if configured_pipeline_path
+    else Path(__file__).resolve().parent / "models" / "ml_model_best.pkl"
+)
+if not PIPELINE_PATH.is_absolute():
+    PIPELINE_PATH = PIPELINE_PATH.resolve()
 
-if not os.path.exists(PIPELINE_PATH):
-    raise FileNotFoundError(f"Pipeline file not found: {PIPELINE_PATH}")
+if not PIPELINE_PATH.is_file():
+    raise FileNotFoundError(
+        f"Model pipeline not found: {PIPELINE_PATH}. "
+        "Place ml_model_best.pkl in Ml/models, or set PIPELINE_PATH to its full path."
+    )
 
 pipeline = joblib.load(PIPELINE_PATH)
 
@@ -172,7 +183,6 @@ def predict(req: PredictRequest):
         })
     
     return {"results": results}
-
 
 
 
